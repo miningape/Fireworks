@@ -3,23 +3,18 @@ I needed to make a physics simulation of a firework for class, so I made this. I
 
 This document is just a general description of every significant portion of code. For more information on specific parts of code look at the source files which have a bunch of comments on the code.
 
-Directory:
-<code>
-	/Executables/ -> You can run these 
-	
-	/Data/ -> Graphics and Sound Files
-	
-	Main file -> Most of the I/O and Logic
-	
-	Physics engine “forces.pde”-> Calculates forces
-	
-	Rocket Items Prototype class “items.pde” -> Prototypes what an object has and does
-	
-	Player Prototype class “player.pde” -> Prototypes what the player can do
+<h5>Directory:</h5>
+<ul>	
+	<li>/Data/ -> Graphics and Sound Files</li>
+	<li>Main file -> Most of the I/O and Logic</li>
+	<li>Physics engine “forces.pde”-> Calculates forces</li>
+	<li>Rocket Items Prototype class “items.pde” -> Prototypes what an object has and does</li>
+	<li>Player Prototype class “player.pde” -> Prototypes what the player can do </li>
+	<li>Wind Particles Prototype class “windParticle.pde” -> Prototypes each particle for the wind, these particles aren’t according to physics and just look nice </li>
+</ul>
 
-	Wind Particles Prototype class “windParticle.pde” -> Prototypes each particle for the wind, these particles aren’t according to physics and just look nice 
-</code>
-<p>I tried to follow the functional programming paradigm but of course I made errors in that, the main file therefore controls most of the input, output and logic and uses information from each of the other files.
+
+<p>I tried to follow the functional programming paradigm but of course I made errors with that, the main file therefore controls most of the input, output and logic and uses information from each of the other files.
 </p>
 <p>
 One weird quirk of the code is that the player’s motion isn’t stopped by friction as it appears, but rather by air resistance. 
@@ -34,11 +29,12 @@ object.acceleration = someEngineFunction(object.acceleration [, forceParams]);
 </code>
 
 <h5>Function Overview:</h5>
+
 <ul>
-	<li>allForces() -> Does not take an acceleration value as it creates a new one to return, it also just calls each of the other functions to calculate a final velocity.</li>
-	<li>applyForce() -> Takes force, mass and current acceleration. Returns acceleration + force/mass</li>
-	<li>airResistance() -> Calculates a force</li>
-	<li>gravity() -> Calculates the acceleration on the object due to gravity</li>
+<li>allForces() -> Does not take an acceleration value as it creates a new one to return, it also just calls each of the other functions to calculate a final velocity.</li>
+<li>applyForce() -> Takes force, mass and current acceleration. Returns acceleration + force/mass</li>
+<li>airResistance() -> Calculates a force</li>
+<li>gravity() -> Calculates the acceleration on the object due to gravity</li>
 </ul>	
 
 
@@ -48,12 +44,15 @@ object.acceleration = someEngineFunction(object.acceleration [, forceParams]);
 <hr />
 
 <h3>Items Class</h3>
+
 <p>The Rocket Items Class contains a prototype for each kind of item from a rocket, either the rocket itself or the residue that explodes from it. It inherits from the physics engine “forces” so it can use any method described in there and I use that to apply physics to each rocket item. 
 </p>
 
 <p>The class contains 4 overloaded constructors so that I could create an object with different parameters that might cause the object to behave differently. The reason this was done was primarily so that an item could be initialized with a speed towards the mouse, or with specific values for x and y velocities. One very important parameter is the “itemType” which is supposed to be either ‘r’ or ‘f’ for rocket or flare respectively and is mostly used for determining what to draw.
 </p>
+
 <h5>Function Overview: </h5>
+
 <ul>
 <li>
 Expired() -> Contains several if statements to determine whether the current item has expired (as a rocket it could have exploded and as a flare it could have faded out). And returns a boolean value that says as much. So it can be removed from arrays that contain several items.
@@ -88,6 +87,7 @@ Exists() -> returns whether the particle can be seen or not so that the particle
 <hr />
 <h3>Main File</h3>
 // Description unfinished but an over view is this
+
 Several arrays for objects
 
 Several Variables
