@@ -20,7 +20,7 @@ class item extends forces {
   int itemAlpha;
   
   // Basic constructor function, for rockets that aren't given a specific velocity and are rather targeted at the mouse
-  item (float loc_x, float loc_y, float init_vel, int tempMass, color stroke, color fill, char type) {
+  item (float loc_x, float loc_y, float init_vel, int tempMass, color stroke, color fill, char type, float T, float bonusTE, boolean defined) {
     this.pos = new PVector(loc_x, loc_y);
     
     
@@ -40,7 +40,7 @@ class item extends forces {
     this.strokePallette = stroke;
     this.fillPallette = fill;
     
-    this.tExplode = millis() + random(300, 1000);
+    this.tExplode = millis() + (!defined ? random(300, 1000) : (T + bonusTE));
     
     this.flag = false;
     
@@ -52,7 +52,7 @@ class item extends forces {
   }
   
   // Overloaded constructor for direct control over starting velocities rather than heading for mouse
-  item (float loc_x, float loc_y, float init_vel_x, float init_vel_y, int tempMass, color stroke, color fill, char type) {
+  item (float loc_x, float loc_y, float init_vel_x, float init_vel_y, int tempMass, color stroke, color fill, char type, float T, float bonusTE, boolean defined) {
     this.pos = new PVector(loc_x, loc_y);
     this.vel = new PVector(init_vel_x, init_vel_y);  
     this.acc = new PVector(0, 0);
@@ -63,7 +63,7 @@ class item extends forces {
     this.strokePallette = stroke;
     this.fillPallette = fill;
     
-    this.tExplode = millis() + 200;
+    this.tExplode = millis() + (defined ? random(300, 1000) : (T + bonusTE));
     
     this.flag = false;
     
@@ -74,13 +74,22 @@ class item extends forces {
     this.itemAlpha = 255;
   }
   
-  // Constructor overloads for one color pallette instead of 2
+  // Constructor overloads for one color pallette instead of 2 and no defined time
   item (float loc_x, float loc_y, float init_vel, int mass, color pallette, char type) {
-    this(loc_x, loc_y, init_vel, mass, pallette, pallette, type);
+    this(loc_x, loc_y, init_vel, mass, pallette, pallette, type, 0f, 0f, false);
   }
   
   item (float loc_x, float loc_y, float init_vel_x, float init_vel_y, int mass, color pallette, char type) {
-    this(loc_x, loc_y, init_vel_x, init_vel_y, mass, pallette, pallette, type);
+    this(loc_x, loc_y, init_vel_x, init_vel_y, mass, pallette, pallette, type, 0f, 0f, false);
+  }
+  
+  // For 2 pallettes but no defined time
+  item (float loc_x, float loc_y, float init_vel, int mass, color pallette, color pallette2, char type) {
+    this(loc_x, loc_y, init_vel, mass, pallette, pallette2, type, 0f, 0f, false);
+  }
+  
+  item (float loc_x, float loc_y, float init_vel_x, float init_vel_y, int mass, color pallette, color pallette2, char type) {
+    this(loc_x, loc_y, init_vel_x, init_vel_y, mass, pallette, pallette2, type, 0f, 0f, false);
   }
   
   boolean expired() {
@@ -117,8 +126,8 @@ class item extends forces {
   void drawFlare() {
     noStroke();
     fill(this.fillPallette, this.itemAlpha);
-    ellipse(pos.x, pos.y, 12, 12);
-    this.itemAlpha = this.itemAlpha - 8;
+    ellipse(pos.x, pos.y, 8, 8);
+    this.itemAlpha = this.itemAlpha - 4;
     //filter( BLUR, 1 ); 
   }
   
@@ -144,7 +153,7 @@ class item extends forces {
   // Because of overloading this function can take an additional force as its parameters
   void update (PVector force) {
     // Apply forces                
-    this.acc = allForces(force, this.size, this.vel, this.mass, (this.itemType == 'f'));
+    this.acc = allForces(force, this.pos, this.size, this.vel, this.mass, (this.itemType == 'f'));
     this.acc = applyForce(this.acc, force, this.mass);
     
     this.vel.add(this.acc);

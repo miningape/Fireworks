@@ -6,24 +6,36 @@ SoundFile boom;
 SoundFile wind_s;
 SoundFile whistle;
 
+// Used to make things have a trail and look better
 int fade = 0;
+
+// Used to reduce how often the player can click and get rid of some bugs
 int timer;
 
+// Direct control over how heavy some objects are
 int rocketMass;
 int flareMass;
 
+// Player animation variables
 int moving = 0;
 int imageNr = 0;
 
+// Wind animation variables
 int windDir;
 
-ArrayList<item> objects = new ArrayList();
-ArrayList<windParticle> wind = new ArrayList();
+// Initialize background image variable
+PImage background;
 
+// Arrays to contain the objects (other than the player) on screen
+ArrayList<item> objects = new ArrayList();                   // Contains everything rockets
+ArrayList<windParticle> wind = new ArrayList();              // Contains the wind art particles
+
+// Self explanatory method I found very useful
 color randomColor() {
  return color(random(0, 255), random(0, 255), random(0, 255)); 
 }
 
+// Create the player character 
 player character;
 
 void setup () {
@@ -31,35 +43,62 @@ void setup () {
   strokeWeight(4);
   textSize(20);
   
+  // Loading sound files into their variables
   boom = new SoundFile(this, "explosion.wav");
   wind_s = new SoundFile(this, "wind.wav");
   whistle = new SoundFile(this, "whistle.wav");
   
+  // The wind.wav file was seriously loud
   wind_s.amp(0.05);
   
+  // Initialize masses
   rocketMass = 10;
   flareMass = 5;
   
-  character = new player(loadImage("character_left.png"));
+  // Load background image
+  background = loadImage("background.png");
+  
+  // Initialize the player character
+  character = new player(new PVector(width/2, height), loadImage("character_left.png"));
 } //<>//
 
 void draw () {
+  // Makes things look nice by giving them tracers
   fade+=5;
-  background(51, fade%255);
+  background(0, fade%255);
   
+  // Draw the city line
+  image(background, 0, 0, width, height);
+  //tint(255, fade&255);
+  
+  /*      Handing Clicks      */
+  // if the player clicked and the player can click
   if (!!mousePressed && timer < millis()) {
-    objects.add(new item( character.pos.x, height, 80.0f, rocketMass, randomColor(), randomColor(), 'r')); 
+    
+    // Creating rockets
+    if (mouseY < 100){
+      objects.add(new item( character.pos.x, character.pos.y + 100, 200.0f, rocketMass, randomColor(), randomColor(), 'r', 500, 400, true));
+      objects.add(new item( character.pos.x, character.pos.y, 199.0f, rocketMass, randomColor(), randomColor(), 'r', 500, 300, true));
+      objects.add(new item( character.pos.x, character.pos.y - 100, 199.9f, rocketMass, randomColor(), randomColor(), 'r', 500, 200, true));
+    } else 
+      objects.add(new item( character.pos.x, character.pos.y, 150.0f, rocketMass, randomColor(), randomColor(), 'r')); 
+    
+    // Reset timer
     timer = millis() + 1000;
+    
+    // Play the rocket whistling sound
     whistle.play();
   }
   
+  /*      Character Movement Code      */
   if (moving == 0) {
-    character.show(2);
+    character.show(2);      // If the character is not being intentionally moved show the still image
   } else {
-    imageNr++;
-    character.show((imageNr / 10) % 2); //(
+    imageNr++;              // Change what image to show
+    character.show((imageNr / 10) % 2); //Change what image is shown (Every tenth frame the image switches)
   }
-  character.move(moving * 10);
+
+  character.move(moving, windDir);
   
   // Iterate through list backwards so we don't mess up the array when deleting items
   for (int i = objects.size() - 1; i >= 0; i--) {
@@ -110,7 +149,7 @@ int addRandFlares (int iterator, int index) {
 
 void draw_wind(int wind_dir) {
   // This lowers the amount of wind particles on the screen so it looks better and doesn't add new wind particles if the wind is not blowing
-  if (random(0, 10) < 5 && wind_dir != 0)
+  if (random(0, 10) < 7 && wind_dir != 0)
     wind.add(new windParticle(wind_dir == 1));
   
   // Looping through each wind particle backwards because we don't want to mess up the array
@@ -132,12 +171,12 @@ void keyPressed () {
   switch (key) {
     case 'a':
       moving = -1;
-      character = new player(character.pos, loadImage("character_left.png"));
+      character = new player(character.pos, loadImage("character_left.png"));   
       break;
       
     case 'd':
       moving = 1;
-      character = new player(character.pos, loadImage("character_right.png"));
+      character = new player(character.pos, loadImage("character_right.png"));   
       break;
       
     case 'e':
@@ -152,6 +191,12 @@ void keyPressed () {
         windDir = 0;
       else
         windDir = -1;
+      break;
+      
+    case ' ':
+      do {
+        character.acc = character.applyForce(character.acc, new PVector(0, -1500), 80);
+      } while (false);
       break;
       
     default:
@@ -171,6 +216,11 @@ void keyReleased() {
       break;
       
     case 'd':
+      if (!keyPressed)
+        moving = 0;
+      break;
+      
+    case 'j':
       if (!keyPressed)
         moving = 0;
       break;
